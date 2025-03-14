@@ -4,9 +4,9 @@
 <div class="start text-5xl text-gray-500 tansform hover:scale-110 transition ease-in-out
 duration-700">
        <router-link to="/product" class="hover:text-gray-100">
-         <span class="text-lego legoMocWorld">lego</span>
-         <span class="text-moc legoMocWorld">moc</span>
-         <span class="text-world legoMocWorld">world</span>
+         <span class="text-lego legoMocWorld ">lego</span>
+         <span class="text-moc legoMocWorld ">moc</span>
+         <span class="text-world legoMocWorld ">world</span>
     </router-link>
 </div> 
 </div>
@@ -37,7 +37,18 @@ duration-700">
   min-height: 100vh;
   z-index: -1;
 }
-
+@media screen and (max-width:768px){
+ 
+  .video{
+    max-width:100%;
+    height:100%;
+    /* display:none */
+  }
+  span{
+    font-size: 20px;
+    margin:0 auto
+  }
+}
 #navbarall{
   position: fixed;
   overflow: hidden;
