@@ -40,8 +40,8 @@
             >
           </li>
           <li>
-            <router-link :to="{ name: 'about' }" class="navbar"
-              >Contact us</router-link
+            <router-link :to="{ name: 'favorite' }" class="navbar"
+              >My favorite</router-link
             >
           </li>
         </ul>

@@ -1,6 +1,6 @@
 <template>
   <main class="px-16 py-6 bg-gray-100 md:col-span-3">
-    <div class="text-gray-500 flex justify-center md:justify-end">
+    <div class="text-gray-500 flex justify-center md:justify-end font-body">
       <router-link
         to="/cart"
         class="block btn btnHover rounded-lg px-5 py-2.5 text-center"
@@ -11,9 +11,12 @@
     </div>
 
     <header>
-      <h2 class="text-lego text-xl cursor-pointer">MOC BY gabizon</h2>
+      <h2 class="text-lego text-xl cursor-pointer font-body">MOC BY gabizon</h2>
 
-      <a href="#" class="text-world flex text-md pt-5 border-b border-blue-200">
+      <a
+        href="#"
+        class="text-world flex text-md pt-5 border-b border-blue-200 font-body"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="text-world h-5 w-5"
@@ -50,7 +53,7 @@
               {{ item.category }}
               <span class="flex items-center justify-end">
                 <button
-                  class="addBtn"
+                  class="addBtn font-body"
                   @click="addToCartWithNotification(item.id)"
                 >
                   Add to Cart
@@ -58,7 +61,7 @@
               </span>
             </span>
           </div>
-          <button class="badge">
+          <button class="badge" @click="toggleFavorite(item)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="text-moc h-5 w-5 inline-block"
@@ -69,26 +72,22 @@
                 d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
               />
             </svg>
-            <span> track </span>
+            <span class="font-body">
+              {{ favoritesStore.isFavorite(item.id) ? "Untrack" : "Track" }}
+            </span>
+
+            <!-- 加入最愛提示框 -->
+            <transition name="fade">
+              <div
+                v-if="showFavoriteNotification"
+                class="fixed bottom-4 right-4 bg-lime-500 text-white px-4 py-2 rounded-lg shadow-lg"
+              >
+                {{ favoriteNotificationMessage }}
+              </div>
+            </transition>
           </button>
         </div>
       </div>
-
-      <a href="#" class="flex mt-12 border-b border-blue-200 text-moc">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        all items
-      </a>
     </div>
 
     <!-- 加入提示框 -->
@@ -97,7 +96,7 @@
         v-if="showNotification"
         class="fixed bottom-4 right-4 bg-lime-500 text-white px-4 py-2 rounded-lg shadow-lg"
       >
-        Successfully add to cart!
+        SUCCESSFULLYY ADD TO CART!
       </div>
     </transition>
   </main>
@@ -106,17 +105,21 @@
 <script>
 import { useCartStore } from "../../store/cart";
 import { useProductsStore } from "../../store/products";
+import { useFavoritesStore } from "../../store/favorite";
 
 export default {
   setup() {
     const cartStore = useCartStore();
     const productsStore = useProductsStore();
-    return { cartStore, productsStore };
+    const favoritesStore = useFavoritesStore();
+    return { cartStore, productsStore, favoritesStore };
   },
 
   data() {
     return {
       showNotification: false,
+      showFavoriteNotification: false,
+      favoriteNotificationMessage: "",
     };
   },
   computed: {
@@ -137,6 +140,16 @@ export default {
       this.showNotification = true;
       setTimeout(() => {
         this.showNotification = false;
+      }, 2000);
+    },
+    toggleFavorite(item) {
+      this.favoritesStore.toggleFavorite(item.id); 
+      this.favoriteNotificationMessage = this.favoritesStore.isFavorite(item.id)
+        ? "Added to favorites!"
+        : "Removed from favorites!";
+      this.showFavoriteNotification = true;
+      setTimeout(() => {
+        this.showFavoriteNotification = false;
       }, 2000);
     },
   },
