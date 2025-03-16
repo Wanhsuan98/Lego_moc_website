@@ -1,80 +1,13 @@
 <template>
-  <!-- <div class="grid md:grid-cols-3 text-gray-500 font-body body"> -->
   <main class="px-16 py-6 bg-gray-100 md:col-span-3">
     <div class="text-gray-500 flex justify-center md:justify-end">
-      <button
-        class="btn text-red-400 border-red-300 border-2 hover:bg-red-400 hover:text-white transition ease-out duration-500"
-      >
-        <!-- @click="control.tab='all'" id="to-my-cart"  -->
-        all items
-      </button>
-
-      <button
-        class="block btn text-red-400 border-red-300 border-2 hover:bg-red-400 hover:text-white transition ease-out duration-500 rounded-lg px-5 py-2.5 text-center"
-        type="button"
-        data-modal-toggle="defaultModal"
-        @click="showCart = !showCart"
+      <router-link
+        to="/cart"
+        class="block btn btnHover rounded-lg px-5 py-2.5 text-center"
       >
         MY cart
-        <span class="total-quantity">{{ totalQuantity }}</span>
-      </button>
-
-      <div
-        id="defaultModal"
-        tabindex="-1"
-        aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full justify-center items-center"
-      >
-        <div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
-          <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <div
-              class="flex justify-between items-start p-4 rounded-t border-b dark:border-gray-600"
-            >
-              <h3 class="text-xl font-semibold text-lego dark:text-white">
-                my items
-              </h3>
-              <button
-                type="button"
-                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                data-modal-toggle="defaultModal"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-
-            <div class="p-6 space-y-6" v-if="showCart">
-              <ul class="cart-dropdown-list">
-                <li v-for="item in cart" :key="item.id">
-                  {{ item.name }}: {{ item.quantity }}
-                </li>
-              </ul>
-            </div>
-
-            <div
-              class="flex items-center p-6 space-x-2 rounded-b border-t border-gray-200 dark:border-gray-600"
-            >
-              <button
-                data-modal-toggle="defaultModal"
-                type="button"
-                class="text-lego text-base uppercase rounded-full hover:text-sky-300 duration-300"
-              >
-                close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        <span class="total-quantity">{{ cartStore.cartItemsCount }}</span>
+      </router-link>
     </div>
 
     <header>
@@ -100,7 +33,11 @@
     <div>
       <div class="mt-8 grid lg:grid-cols-3 gap-10">
         <!-- cards I-->
-        <div class="card hover:shadow-xl" v-for="item in items" :key="item.id">
+        <div
+          class="card hover:shadow-xl"
+          v-for="item in productsStore.products"
+          :key="item.id"
+        >
           <img
             :src="item.img"
             alt="#21318"
@@ -113,25 +50,15 @@
               {{ item.category }}
               <span class="flex items-center justify-end">
                 <button
-                  class="addAndDel text-3xl px-7 cartBtn"
-                  @click="updateCart(item, 'subtract')"
+                  class="addBtn"
+                  @click="addToCartWithNotification(item.id)"
                 >
-                  -
-                </button>
-
-                <span> {{ item.quantity }} </span>
-
-                <button
-                  class="addAndDel text-2xl px-7 cartBtn"
-                  @click="updateCart(item, 'add')"
-                >
-                  +
+                  Add to Cart
                 </button>
               </span>
             </span>
           </div>
           <button class="badge">
-            <!-- :class="{addToCart : addToCart[item.uid]}" @click="toggle_cart(item.uid)" -->
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="text-moc h-5 w-5 inline-block"
@@ -163,82 +90,33 @@
         all items
       </a>
     </div>
+
+    <!-- 加入提示框 -->
+    <transition name="fade">
+      <div
+        v-if="showNotification"
+        class="fixed bottom-4 right-4 bg-lime-500 text-white px-4 py-2 rounded-lg shadow-lg"
+      >
+        Successfully add to cart!
+      </div>
+    </transition>
   </main>
 </template>
 
 <script>
+import { useCartStore } from "../../store/cart";
+import { useProductsStore } from "../../store/products";
+
 export default {
+  setup() {
+    const cartStore = useCartStore();
+    const productsStore = useProductsStore();
+    return { cartStore, productsStore };
+  },
+
   data() {
     return {
-      items: [
-        {
-          id: "0001",
-          name: "Modular Medieval House #21318",
-          price: "$100",
-          category: "gabizon",
-          description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          addToCart: "#21318",
-          quantity: 0,
-          img: require("/src/assets/21318.jpg"),
-        },
-        {
-          id: "0002",
-          name: "Modular Neighborhood #35965",
-          price: "$100",
-          category: "gabizon",
-          description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          addToCart: "#35965",
-          quantity: 0,
-          img: require("/src/assets/35965.jpg"),
-        },
-        {
-          id: "0003",
-          name: "Desert Village #32630",
-          price: "$100",
-          category: "gabizon",
-          description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          addToCart: "#32630",
-          quantity: 0,
-          img: require("/src/assets/32630.jpg"),
-        },
-        {
-          id: "0004",
-          name: "Iron man himself #31204",
-          price: "$100",
-          category: "kszd",
-          description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          addToCart: "#31204",
-          quantity: 0,
-          img: require("/src/assets/31204.jpg"),
-        },
-        {
-          id: "0005",
-          name: "Taylor Swift #31205",
-          price: "$100",
-          category: "kszd",
-          description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          addToCart: " #31205",
-          quantity: 0,
-          img: require("/src/assets/31205.jpg"),
-        },
-        {
-          id: "0006",
-          name: "Michael Jackson #31199",
-          price: "$100",
-          category: "kszd",
-          description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-          addToCart: "#31199",
-          quantity: 0,
-          img: require("/src/assets/31199.jpg"),
-        },
-      ],
-      showCart: false,
+      showNotification: false,
     };
   },
   computed: {
@@ -250,35 +128,28 @@ export default {
     },
   },
   methods: {
-    updateCart(item, updateType) {
-      for (let i = 0; i < this.items.length; i++) {
-        if (this.items[i].id === item.id) {
-          if (updateType === "subtract") {
-            if (this.items[i].quantity !== 0) {
-              this.items[i].quantity--;
-            }
-          } else {
-            this.items[i].quantity++;
-          }
-
-          break;
-        }
-      }
+    getItemQuantity(itemId) {
+      const cartItem = this.cartStore.cart.find((item) => item.id === itemId);
+      return cartItem ? cartItem.quantity : 0;
+    },
+    addToCartWithNotification(itemId) {
+      this.cartStore.addToCart(itemId);
+      this.showNotification = true;
+      setTimeout(() => {
+        this.showNotification = false;
+      }, 2000);
     },
   },
-  props: ["product"],
 };
 </script>
 
 <style scoped>
-.cart-dropdown-list {
-  color: black;
-  font-family: "Merienda", cursive;
-  font-weight: 300;
-  font-size: 16px;
-  list-style: none;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
-li {
-  margin: 1rem 0;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
