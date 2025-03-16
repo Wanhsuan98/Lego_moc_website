@@ -1,6 +1,6 @@
 <template>
-  <div class="grid md:grid-cols-3 text-gray-500 font-body body">
-    <Navbar></Navbar>
+  <div class="grid md:grid-cols-3 text-gray-500 body">
+    <Navbar class="font-body"></Navbar>
 
     <!--content wrapper I-->
     <ProductSummaryCard></ProductSummaryCard>

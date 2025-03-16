@@ -6,6 +6,28 @@ module.exports = {
     require('flowbite/plugin')
   ],
   theme: {
+
+    extend: {
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-out',
+        'fade-out': 'fadeOut 0.3s ease-out',
+        'slide-in': 'slideIn 0.3s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' }
+        },
+        slideIn: {
+          '0%': { maxHeight: '0', opacity: '0' },
+          '100%': { maxHeight: '200px', opacity: '1' } 
+        },
+      }
+    },
     screens: {
       ssm: '200px',
       sm: '640px',
