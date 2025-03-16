@@ -1,4 +1,4 @@
-# Vue-Cli + Pinia
+# Vue-Cli + Pinia + Tailwindcss
 
 ## Project setup
 ```
