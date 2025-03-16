@@ -1,7 +1,5 @@
 # Vue 3 + Vite + Pinia
 
-# router-practice
-
 ## Project setup
 ```
 npm install
