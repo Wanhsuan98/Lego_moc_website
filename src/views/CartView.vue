@@ -30,7 +30,7 @@
               <div class="flex items-center">
                 <button
                   class="addAndDel text-3xl px-4"
-                  @click="cartStore.decrementQuantity(item.id)"
+                  @click="decrementWithConfirm(item.id)"
                 >
                   -
                 </button>
@@ -43,7 +43,7 @@
                 </button>
                 <button
                   class="text-red-400 px-4 btnHover font-body"
-                  @click="cartStore.removeFromCart(item.id)"
+                  @click="showConfirmModal(item.id, 'remove')"
                 >
                   Delete
                 </button>
@@ -69,6 +69,38 @@
           <p v-else class="text-gray-500 font-body">
             Your Shopping Cart is empty!
           </p>
+          <transition name="fade">
+            <div
+              v-if="showModal"
+              class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50"
+            >
+              <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                  確認移除
+                </h3>
+                <p class="text-gray-600 mb-6">
+                  確定要從購物車中移除「{{
+                    cartStore.cartItems.find((item) => item.id === itemToRemove)
+                      ?.name
+                  }}」嗎？
+                </p>
+                <div class="flex justify-end space-x-4">
+                  <button
+                    class="px-4 py-2 text-gray-500 btnCancelHover"
+                    @click="closeModal"
+                  >
+                    取消
+                  </button>
+                  <button
+                    class="px-4 py-2 bg-red-500 text-white btnHover"
+                    @click="confirmAction"
+                  >
+                    確認
+                  </button>
+                </div>
+              </div>
+            </div>
+          </transition>
         </div>
       </div>
     </div>
@@ -84,12 +116,47 @@ export default {
     const cartStore = useCartStore();
     return { cartStore };
   },
+  data() {
+    return {
+      showModal: false,
+      itemToRemove: null,
+    };
+  },
+  methods: {
+    showConfirmModal(itemId, type) {
+      this.itemToRemove = itemId;
+      this.actionType = type;
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.itemToRemove = null;
+      this.actionType = null;
+    },
+    confirmAction() {
+      if (this.itemToRemove !== null) {
+        if (this.actionType === "remove") {
+          this.cartStore.removeFromCart(this.itemToRemove);
+        } else if (this.actionType === "decrementToZero") {
+          this.cartStore.removeFromCart(this.itemToRemove);
+        }
+      }
+      this.closeModal();
+    },
+    decrementWithConfirm(itemId) {
+      const item = this.cartStore.cartItems.find((item) => item.id === itemId);
+      if (item && item.quantity === 1) {
+        this.showConfirmModal(itemId, "decrementToZero");
+      } else {
+        this.cartStore.decrementQuantity(itemId);
+      }
+    },
+  },
 };
 </script>
 
 <style scoped>
 .body {
   margin: 0px;
-  z-index: 999;
 }
 </style>
