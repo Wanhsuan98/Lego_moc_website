@@ -72,7 +72,7 @@ export default {
 <style>
 .body {
   background-color: white;
-  margin-top: -370px;
+  margin: 0;
   width: 100%;
   height: 100%;
 }
