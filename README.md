@@ -1,6 +1,4 @@
-# Vue 3 + Vite + Pinia
-
-# router-practice
+# Vue-Cli + Pinia
 
 ## Project setup
 ```
