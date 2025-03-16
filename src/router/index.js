@@ -5,6 +5,7 @@ import AboutView from "../views/AboutView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import LoginView from "../views/LoginView.vue";
 import SignupView from "../views/SignupView.vue";
+import CartView from '../views/CartView.vue'
 
 const routes = [
   {
@@ -32,6 +33,11 @@ const routes = [
     path: "/signup",
     name: "signup",
     component: SignupView,
+  },
+  {
+    path: '/cart',
+    name: 'cart',
+    component: CartView,
   },
 
   // catchall 404
