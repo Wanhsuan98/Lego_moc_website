@@ -5,15 +5,13 @@
 npm install
 ```
 
-### Compiles and hot-reloads for development
+## Compiles and hot-reloads for development
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Dependencies
+The front-end login functionality requires a running back-end API. The back-end code is located in the `https://github.com/Wanhsuan98/login-api.git` this repository. Ensure the back-end is started before running the front-end.
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Backend Installation and Setup
+Please refer to the README at `https://github.com/Wanhsuan98/login-api.git` for instructions on how to start the back-end.
