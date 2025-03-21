@@ -4,29 +4,15 @@
     <main class="px-16 py-6 bg-gray-100 md:col-span-3 font-login">
       <div class="content p-5">
         <form @submit.prevent="handleSubmit">
-          <label>Email:</label>
-          <input type="email" required v-model="email" />
+          <label>UserName:</label>
+          <input type="text" required v-model="username" />
 
           <label>Password:</label>
           <input type="Password" required v-model="password" />
           <div v-if="passwordError" class="error">{{ passwordError }}</div>
 
-          <div class="accept my-4">
-            <input
-              type="checkbox"
-              v-model="terms"
-              required
-              class="bg-gray-300"
-            />
-            <label>remember me</label>
-          </div>
-
           <div class="submit">
-            <button
-              class="bg-gray-200 text-gray-400 border-gray-300 border-4 hover:bg-gray-400 hover:text-white transition ease-out duration-500 rounded-lg"
-            >
-              LOGIN
-            </button>
+            <button class="loginBtn loginBtnHover mt-4">LOGIN</button>
           </div>
         </form>
       </div>
@@ -40,29 +26,34 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 import Footer1 from "../components/Footer.vue";
+import AuthService from "@/service/AuthService";
 
 export default {
   name: "LoginView",
   components: { Navbar, Footer1 },
   data() {
     return {
-      email: "",
-      Password: "",
+      username: "",
+      password: "",
       passwordError: "",
-      userName: "",
     };
   },
   methods: {
-    handleSubmit() {
-      // console.log('from submitted')
-      this.passwordError = this.password.length > 5 ? "" : "incorrect password";
+    async handleSubmit() {
+      this.passwordError = "";
 
-      if (!this.passwordError) {
-        console.log("email: ", this.email);
-        console.log("password: ", this.password);
-        console.log("gender: ", this.gender);
-        console.log("username: ", this.userName);
-        console.log("terms accepted: ", this.accept);
+      if (this.password.length <= 3) {
+        this.passwordError = "密碼長度需大於 3 個字符";
+        return;
+      }
+
+      try {
+        const username = await AuthService.login(this.username, this.password);
+        this.username = "";
+        this.password = "";
+        this.$router.push("/product");
+      } catch (error) {
+        this.passwordError = error.message || "登入失敗，請檢查帳號或密碼";
       }
     },
   },

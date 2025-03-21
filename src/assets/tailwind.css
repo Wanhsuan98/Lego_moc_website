@@ -29,6 +29,14 @@
   @apply hover:bg-red-400 hover:text-white transition ease-out duration-500;
 }
 
+.loginBtn{
+  @apply bg-gray-200 text-gray-400 border-gray-300 border-4
+}
+
+.loginBtnHover {
+  @apply  hover:bg-gray-400 hover:text-white transition ease-out duration-500 rounded-lg
+}
+
 .btnCancelHover {
   @apply hover:text-gray-800 transition-colors ease-out duration-500;
 }

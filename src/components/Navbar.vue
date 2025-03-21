@@ -46,13 +46,42 @@
           </li>
         </ul>
       </div>
-      <div class="mobile-menu md:px-11 text-moc">
-        <router-link :to="{ name: 'login' }" class="navbar">Login</router-link>
-        <router-link :to="{ name: 'signup' }" class="navbar"
-          >Signup</router-link
-        >
+      <div class="mobile-menu md:px-11 flex">
+        <template v-if="!isLoggedIn">
+          <router-link :to="{ name: 'login' }" class="navbar"
+            >Login</router-link
+          >
+          <router-link :to="{ name: 'signup' }" class="navbar"
+            >Signup</router-link
+          >
+        </template>
+        <template v-else>
+          <span class="text-moc">Hello, {{ currentUser.username }}</span>
+          <button @click="logout" class="navbar text-xs w-20">Logout</button>
+        </template>
       </div>
     </nav>
   </div>
   <!-- navbar end -->
 </template>
+
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import AuthService from "@/service/AuthService";
+
+const currentUser = ref(null);
+const router = useRouter();
+
+const isLoggedIn = computed(() => !!currentUser.value);
+
+onMounted(() => {
+  currentUser.value = AuthService.getCurrentUser();
+});
+
+const logout = () => {
+  AuthService.logout();
+  currentUser.value = null;
+  router.push("/login");
+};
+</script>
