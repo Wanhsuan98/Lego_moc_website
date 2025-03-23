@@ -103,6 +103,7 @@
 </template>
 
 <script>
+import { ref, computed } from 'vue';
 import { useCartStore } from "../../store/cart";
 import { useProductsStore } from "../../store/products";
 import { useFavoritesStore } from "../../store/favorite";
@@ -112,45 +113,88 @@ export default {
     const cartStore = useCartStore();
     const productsStore = useProductsStore();
     const favoritesStore = useFavoritesStore();
-    return { cartStore, productsStore, favoritesStore };
-  },
 
-  data() {
+    // Notification Composables
+    const useNotification = () => {
+      const showNotification = ref(false);
+      const showFavoriteNotification = ref(false);
+      const favoriteNotificationMessage = ref("");
+
+      const triggerNotification = (type = "cart") => {
+        if (type === "cart") {
+          showNotification.value = true;
+        } else {
+          showFavoriteNotification.value = true;
+        }
+        setTimeout(() => {
+          showNotification.value = false;
+          showFavoriteNotification.value = false;
+        }, 2000);
+      };
+
+      return {
+        showNotification,
+        showFavoriteNotification,
+        favoriteNotificationMessage,
+        triggerNotification,
+      };
+    };
+
+    const {
+      showNotification,
+      showFavoriteNotification,
+      favoriteNotificationMessage,
+      triggerNotification,
+    } = useNotification();
+
     return {
-      showNotification: false,
-      showFavoriteNotification: false,
-      favoriteNotificationMessage: "",
+      cartStore,
+      productsStore,
+      favoritesStore,
+      showNotification,
+      showFavoriteNotification,
+      favoriteNotificationMessage,
+      triggerNotification,
     };
   },
   computed: {
-    cart() {
-      return this.items.filter((item) => item.quantity > 0);
-    },
-    totalQuantity() {
-      return this.items.reduce((total, item) => total + item.quantity, 0);
-    },
+    cart: computed(() => {
+      return this.items?.filter((item) => item.quantity > 0) || [];
+    }),
+
+    totalQuantity: computed(() => {
+      return this.items?.reduce((total, item) => total + item.quantity, 0) || 0;
+    }),
   },
+
   methods: {
     getItemQuantity(itemId) {
-      const cartItem = this.cartStore.cart.find((item) => item.id === itemId);
-      return cartItem ? cartItem.quantity : 0;
+      return (
+        this.cartStore.cart?.find((item) => item.id === itemId)?.quantity ?? 0
+      );
     },
+
     addToCartWithNotification(itemId) {
-      this.cartStore.addToCart(itemId);
-      this.showNotification = true;
-      setTimeout(() => {
-        this.showNotification = false;
-      }, 2000);
+      try {
+        this.cartStore.addToCart(itemId);
+        this.triggerNotification("cart");
+      } catch (error) {
+        console.error("Failed to add to cart:", error);
+      }
     },
+
     toggleFavorite(item) {
-      this.favoritesStore.toggleFavorite(item.id); 
-      this.favoriteNotificationMessage = this.favoritesStore.isFavorite(item.id)
-        ? "Added to favorites!"
-        : "Removed from favorites!";
-      this.showFavoriteNotification = true;
-      setTimeout(() => {
-        this.showFavoriteNotification = false;
-      }, 2000);
+      try {
+        this.favoritesStore.toggleFavorite(item.id);
+        this.favoriteNotificationMessage = this.favoritesStore.isFavorite(
+          item.id
+        )
+          ? "Added to favorites!"
+          : "Removed from favorites!";
+        this.triggerNotification("favorite");
+      } catch (error) {
+        console.error("Failed to toggle favorite:", error);
+      }
     },
   },
 };

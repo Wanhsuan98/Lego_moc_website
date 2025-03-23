@@ -19,9 +19,12 @@
           </router-link>
         </div>
 
-        <div v-if="favoritesStore.favoriteItems.length === 0" class="text-gray-500 font-body m-4">
-            No favorite items yet.
-         </div>
+        <div
+          v-if="favoritesStore.favoriteItems.length === 0"
+          class="text-gray-500 font-body m-4"
+        >
+          No favorite items yet.
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             v-for="item in favoritesStore.favoriteItems"
@@ -52,34 +55,40 @@
 
 <script>
 import { useFavoritesStore } from "../store/favorite";
+import { ref } from "vue";
 
 export default {
   name: "FavoriteItem",
   setup() {
     const favoritesStore = useFavoritesStore();
-    return { favoritesStore };
-  },
-  data() {
-    return {
-      showModal: false,
-      itemToRemove: null,
+    const showModal = ref(false);
+    const itemToRemove = ref(null);
+
+    const showConfirmModal = (itemId) => {
+      itemToRemove.value = itemId;
+      showModal.value = true;
     };
-  },
-  methods: {
-    showConfirmModal(itemId) {
-      this.itemToRemove = itemId;
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-      this.itemToRemove = null;
-    },
-    confirmRemove() {
-      if (this.itemToRemove !== null) {
-        this.favoritesStore.removeFromFavorites(this.itemToRemove);
+
+    const closeModal = () => {
+      showModal.value = false;
+      itemToRemove.value = null;
+    };
+
+    const confirmRemove = () => {
+      if (itemToRemove.value !== null) {
+        favoritesStore.removeFromFavorites(itemToRemove.value);
+        closeModal();
       }
-      this.closeModal();
-    },
+    };
+
+    return {
+      showModal,
+      itemToRemove,
+      showConfirmModal,
+      closeModal,
+      confirmRemove,
+      favoritesStore,
+    };
   },
 };
 </script>

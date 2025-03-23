@@ -108,50 +108,58 @@
 </template>
 
 <script>
-import { useCartStore } from "../store/cart";
+import { useCartStore } from '../store/cart';
+import { ref } from 'vue';
 
 export default {
-  name: "CartView",
+  name: 'CartView',
   setup() {
     const cartStore = useCartStore();
-    return { cartStore };
-  },
-  data() {
-    return {
-      showModal: false,
-      itemToRemove: null,
+    const showModal = ref(false);
+    const itemToRemove = ref(null);
+    const actionType = ref(null);
+
+    const showConfirmModal = (itemId, type) => {
+      itemToRemove.value = itemId;
+      actionType.value = type;
+      showModal.value = true;
     };
-  },
-  methods: {
-    showConfirmModal(itemId, type) {
-      this.itemToRemove = itemId;
-      this.actionType = type;
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-      this.itemToRemove = null;
-      this.actionType = null;
-    },
-    confirmAction() {
-      if (this.itemToRemove !== null) {
-        if (this.actionType === "remove") {
-          this.cartStore.removeFromCart(this.itemToRemove);
-        } else if (this.actionType === "decrementToZero") {
-          this.cartStore.removeFromCart(this.itemToRemove);
-        }
-      }
-      this.closeModal();
-    },
-    decrementWithConfirm(itemId) {
-      const item = this.cartStore.cartItems.find((item) => item.id === itemId);
-      if (item && item.quantity === 1) {
-        this.showConfirmModal(itemId, "decrementToZero");
+
+    const closeModal = () => {
+      showModal.value = false;
+      itemToRemove.value = null;
+      actionType.value = null;
+    };
+
+    const confirmAction = () => {
+      if (itemToRemove.value === null) return;
+
+      // Since both actions result in removal, we can simplify
+      cartStore.removeFromCart(itemToRemove.value);
+      closeModal();
+    };
+
+    const decrementWithConfirm = (itemId) => {
+      const item = cartStore.cartItems.find(item => item.id === itemId);
+      
+      if (item?.quantity === 1) {
+        showConfirmModal(itemId, 'remove'); // Simplified action type
       } else {
-        this.cartStore.decrementQuantity(itemId);
+        cartStore.decrementQuantity(itemId);
       }
-    },
-  },
+    };
+
+    return {
+      cartStore,
+      showModal,
+      itemToRemove,
+      actionType,
+      showConfirmModal,
+      closeModal,
+      confirmAction,
+      decrementWithConfirm
+    };
+  }
 };
 </script>
 

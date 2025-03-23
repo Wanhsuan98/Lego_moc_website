@@ -24,40 +24,49 @@
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
-import Footer1 from "../components/Footer.vue";
-import AuthService from "@/service/AuthService";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import Navbar from "../components/Navbar.vue"
+import Footer1 from "../components/Footer.vue"
+import AuthService from "@/service/AuthService"
 
 export default {
   name: "LoginView",
   components: { Navbar, Footer1 },
-  data() {
-    return {
-      username: "",
-      password: "",
-      passwordError: "",
-    };
-  },
-  methods: {
-    async handleSubmit() {
-      this.passwordError = "";
+  setup() {
+    const router = useRouter()
+    
+    const username = ref('')
+    const password = ref('')
+    const passwordError = ref('')
 
-      if (this.password.length <= 3) {
-        this.passwordError = "密碼長度需大於 3 個字符";
-        return;
+    // form
+    const handleSubmit = async () => {
+      passwordError.value = ""
+
+      if (password.value.length <= 3) {
+        passwordError.value = "密碼長度需大於 3 個字符"
+        return
       }
 
       try {
-        const username = await AuthService.login(this.username, this.password);
-        this.username = "";
-        this.password = "";
-        this.$router.push("/product");
+        await AuthService.login(username.value, password.value)
+        username.value = ""
+        password.value = ""
+        router.push("/product")
       } catch (error) {
-        this.passwordError = error.message || "登入失敗，請檢查帳號或密碼";
+        passwordError.value = error.message || "登入失敗，請檢查帳號或密碼"
       }
-    },
-  },
-};
+    }
+
+    return {
+      username,
+      password,
+      passwordError,
+      handleSubmit
+    }
+  }
+}
 </script>
 
 <style>
